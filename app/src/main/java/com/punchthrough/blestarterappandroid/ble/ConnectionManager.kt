@@ -334,6 +334,9 @@ object ConnectionManager {
             is MtuRequest -> with(operation) {
                 gatt.requestMtu(mtu)
             }
+            else -> {
+                // Kotlin 1.7 onwards requires final else in when statement.
+            }
         }
     }
 
