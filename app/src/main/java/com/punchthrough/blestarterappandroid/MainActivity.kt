@@ -37,8 +37,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.punchthrough.blestarterappandroid.ble.ConnectionEventListener
 import com.punchthrough.blestarterappandroid.ble.ConnectionManager
-import kotlinx.android.synthetic.main.activity_main.scan_button
-import kotlinx.android.synthetic.main.activity_main.scan_results_recycler_view
+import com.punchthrough.blestarterappandroid.databinding.ActivityMainBinding
 import org.jetbrains.anko.alert
 import timber.log.Timber
 
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     private var isScanning = false
         set(value) {
             field = value
-            runOnUiThread { scan_button.text = if (value) "Stop Scan" else "Start Scan" }
+            runOnUiThread { binding.scanButton.text = if (value) "Stop Scan" else "Start Scan" }
         }
 
     private val scanResults = mutableListOf<ScanResult>()
@@ -89,14 +88,19 @@ class MainActivity : AppCompatActivity() {
     /*******************************************
      * Activity function overrides
      *******************************************/
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+
+        setContentView(view)
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
-        scan_button.setOnClickListener { if (isScanning) stopBleScan() else startBleScan() }
+        binding.scanButton.setOnClickListener { if (isScanning) stopBleScan() else startBleScan() }
         setupRecyclerView()
     }
 
@@ -184,7 +188,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        scan_results_recycler_view.apply {
+        binding.scanResultsRecyclerView.apply {
             adapter = scanResultAdapter
             layoutManager = LinearLayoutManager(
                 this@MainActivity,
@@ -194,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             isNestedScrollingEnabled = false
         }
 
-        val animator = scan_results_recycler_view.itemAnimator
+        val animator = binding.scanResultsRecyclerView.itemAnimator
         if (animator is SimpleItemAnimator) {
             animator.supportsChangeAnimations = false
         }

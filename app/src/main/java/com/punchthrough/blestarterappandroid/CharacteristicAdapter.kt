@@ -17,26 +17,24 @@
 package com.punchthrough.blestarterappandroid
 
 import android.bluetooth.BluetoothGattCharacteristic
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.punchthrough.blestarterappandroid.ble.printProperties
-import kotlinx.android.synthetic.main.row_characteristic.view.characteristic_properties
-import kotlinx.android.synthetic.main.row_characteristic.view.characteristic_uuid
-import org.jetbrains.anko.layoutInflater
+import com.punchthrough.blestarterappandroid.databinding.RowCharacteristicBinding
+
+
 
 class CharacteristicAdapter(
     private val items: List<BluetoothGattCharacteristic>,
     private val onClickListener: ((characteristic: BluetoothGattCharacteristic) -> Unit)
 ) : RecyclerView.Adapter<CharacteristicAdapter.ViewHolder>() {
 
+    private lateinit var binding: RowCharacteristicBinding
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = parent.context.layoutInflater.inflate(
-            R.layout.row_characteristic,
-            parent,
-            false
-        )
-        return ViewHolder(view, onClickListener)
+
+        val itemBinding = RowCharacteristicBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(itemBinding, onClickListener)
     }
 
     override fun getItemCount() = items.size
@@ -47,14 +45,14 @@ class CharacteristicAdapter(
     }
 
     class ViewHolder(
-        private val view: View,
+        private val itemBinding: RowCharacteristicBinding,
         private val onClickListener: ((characteristic: BluetoothGattCharacteristic) -> Unit)
-    ) : RecyclerView.ViewHolder(view) {
+    ) : RecyclerView.ViewHolder(itemBinding.root) {
 
         fun bind(characteristic: BluetoothGattCharacteristic) {
-            view.characteristic_uuid.text = characteristic.uuid.toString()
-            view.characteristic_properties.text = characteristic.printProperties()
-            view.setOnClickListener { onClickListener.invoke(characteristic) }
+            itemBinding.characteristicUuid.text = characteristic.uuid.toString()
+            itemBinding.characteristicProperties.text = characteristic.printProperties()
+            itemBinding.root.setOnClickListener { onClickListener.invoke(characteristic) }
         }
     }
 }

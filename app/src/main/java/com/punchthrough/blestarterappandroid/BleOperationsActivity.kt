@@ -38,11 +38,7 @@ import com.punchthrough.blestarterappandroid.ble.isReadable
 import com.punchthrough.blestarterappandroid.ble.isWritable
 import com.punchthrough.blestarterappandroid.ble.isWritableWithoutResponse
 import com.punchthrough.blestarterappandroid.ble.toHexString
-import kotlinx.android.synthetic.main.activity_ble_operations.characteristics_recycler_view
-import kotlinx.android.synthetic.main.activity_ble_operations.log_scroll_view
-import kotlinx.android.synthetic.main.activity_ble_operations.log_text_view
-import kotlinx.android.synthetic.main.activity_ble_operations.mtu_field
-import kotlinx.android.synthetic.main.activity_ble_operations.request_mtu_button
+import com.punchthrough.blestarterappandroid.databinding.ActivityBleOperationsBinding
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.selector
@@ -51,6 +47,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+
 
 class BleOperationsActivity : AppCompatActivity() {
 
@@ -79,7 +76,9 @@ class BleOperationsActivity : AppCompatActivity() {
             showCharacteristicOptions(characteristic)
         }
     }
+
     private var notifyingCharacteristics = mutableListOf<UUID>()
+    private lateinit var binding: ActivityBleOperationsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ConnectionManager.registerListener(connectionEventListener)
@@ -87,19 +86,23 @@ class BleOperationsActivity : AppCompatActivity() {
         device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
             ?: error("Missing BluetoothDevice from MainActivity!")
 
-        setContentView(R.layout.activity_ble_operations)
+
+        binding = ActivityBleOperationsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)
             title = getString(R.string.ble_playground)
         }
         setupRecyclerView()
-        request_mtu_button.setOnClickListener {
-            if (mtu_field.text.isNotEmpty() && mtu_field.text.isNotBlank()) {
-                mtu_field.text.toString().toIntOrNull()?.let { mtu ->
+        binding.requestMtuButton.setOnClickListener {
+            if (binding.mtuField.text.isNotEmpty() && binding.mtuField.text.isNotBlank()) {
+                binding.mtuField.text.toString().toIntOrNull()?.let { mtu ->
                     log("Requesting for MTU value of $mtu")
                     ConnectionManager.requestMtu(device, mtu)
-                } ?: log("Invalid MTU value: ${mtu_field.text}")
+                } ?: log("Invalid MTU value: ${binding.mtuField.text}")
             } else {
                 log("Please specify a numeric value for desired ATT MTU (23-517)")
             }
@@ -124,7 +127,7 @@ class BleOperationsActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        characteristics_recycler_view.apply {
+        binding.characteristicsRecyclerView.apply {
             adapter = characteristicAdapter
             layoutManager = LinearLayoutManager(
                 this@BleOperationsActivity,
@@ -134,7 +137,7 @@ class BleOperationsActivity : AppCompatActivity() {
             isNestedScrollingEnabled = false
         }
 
-        val animator = characteristics_recycler_view.itemAnimator
+        val animator = binding.characteristicsRecyclerView.itemAnimator
         if (animator is SimpleItemAnimator) {
             animator.supportsChangeAnimations = false
         }
@@ -144,13 +147,13 @@ class BleOperationsActivity : AppCompatActivity() {
     private fun log(message: String) {
         val formattedMessage = String.format("%s: %s", dateFormatter.format(Date()), message)
         runOnUiThread {
-            val currentLogText = if (log_text_view.text.isEmpty()) {
+            val currentLogText = if (binding.logTextView.text.isEmpty()) {
                 "Beginning of log."
             } else {
-                log_text_view.text
+                binding.logTextView.text
             }
-            log_text_view.text = "$currentLogText\n$formattedMessage"
-            log_scroll_view.post { log_scroll_view.fullScroll(View.FOCUS_DOWN) }
+            binding.logTextView.text = "$currentLogText\n$formattedMessage"
+            binding.logScrollView.post { binding.logScrollView.fullScroll(View.FOCUS_DOWN) }
         }
     }
 

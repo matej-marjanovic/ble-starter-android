@@ -17,26 +17,22 @@
 package com.punchthrough.blestarterappandroid
 
 import android.bluetooth.le.ScanResult
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.row_scan_result.view.device_name
-import kotlinx.android.synthetic.main.row_scan_result.view.mac_address
-import kotlinx.android.synthetic.main.row_scan_result.view.signal_strength
-import org.jetbrains.anko.layoutInflater
+import com.punchthrough.blestarterappandroid.databinding.RowScanResultBinding
+
 
 class ScanResultAdapter(
     private val items: List<ScanResult>,
     private val onClickListener: ((device: ScanResult) -> Unit)
 ) : RecyclerView.Adapter<ScanResultAdapter.ViewHolder>() {
 
+    private lateinit var binding: RowScanResultBinding
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = parent.context.layoutInflater.inflate(
-            R.layout.row_scan_result,
-            parent,
-            false
-        )
-        return ViewHolder(view, onClickListener)
+
+        val itemBinding = RowScanResultBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(itemBinding, onClickListener)
     }
 
     override fun getItemCount() = items.size
@@ -47,15 +43,15 @@ class ScanResultAdapter(
     }
 
     class ViewHolder(
-        private val view: View,
+        private val itemBinding: RowScanResultBinding,
         private val onClickListener: ((device: ScanResult) -> Unit)
-    ) : RecyclerView.ViewHolder(view) {
+    ) : RecyclerView.ViewHolder(itemBinding.root) {
 
         fun bind(result: ScanResult) {
-            view.device_name.text = result.device.name ?: "Unnamed"
-            view.mac_address.text = result.device.address
-            view.signal_strength.text = "${result.rssi} dBm"
-            view.setOnClickListener { onClickListener.invoke(result) }
+            itemBinding.deviceName.text = result.device.name ?: "Unnamed"
+            itemBinding.macAddress.text = result.device.address
+            itemBinding.signalStrength.text = "${result.rssi} dBm"
+            itemBinding.root.setOnClickListener { onClickListener.invoke(result) }
         }
     }
 }
